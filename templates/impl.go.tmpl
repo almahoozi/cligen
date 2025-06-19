@@ -1,0 +1,18 @@
+package main
+
+// {{title .Command}}Command implementation
+// This file is generated once and will not be overwritten.
+// Implement your command logic here.
+
+// {{title .Command}}Command implements the {{.Command}} command
+func (c *{{title .Command}}Command) {{title .Command}}Command(args *{{title .Command}}Command) error {
+	// TODO: Implement your {{.Command}} command logic here
+	// You can access command arguments via:
+	{{range .Fields}}// args.{{.Name}} ({{.Type}})
+	{{end}}
+	
+	// Example implementation:
+	// fmt.Printf("Running {{.Command}} command with args: %+v\n", args)
+	
+	return nil
+} 
