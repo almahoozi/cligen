@@ -5,7 +5,7 @@
 ## Installation
 
 ```bash
-go install github.com/almahoozi/cligengo@latest
+go install github.com/almahoozi/cligen@latest
 ```
 
 ## Usage

@@ -1,4 +1,4 @@
-module github.com/almahoozi/cligengo
+module github.com/almahoozi/cligen
 
 go 1.24.4
 
