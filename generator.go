@@ -252,7 +252,7 @@ func New{{title .Command}}Command() *{{title .Command}}Command {
 	cmd := &{{title .Command}}Command{}
 	
 	// Define flags
-	{{range .Fields}}{{$help := ""}}{{if .Usage}}{{$help = .Usage}}{{else}}{{$help = .CLIName}}{{if .Required}}{{$help = printf "%s (required)" $help}}{{end}}{{if .Options}}{{$help = printf "%s [%s]" $help (join .Options "|")}}{{end}}{{end}}{{if eq .Type "string"}}pflag.StringVarP(&cmd.{{.Name}}, "{{.CLIName}}", "{{.ShortFlag}}", "{{.DefaultValue}}", "{{$help}}")
+	{{range .Fields}}{{$help := ""}}{{if .Usage}}{{$help = .Usage}}{{else}}{{$help = .CLIName}}{{end}}{{if .Required}}{{$help = printf "%s (required)" $help}}{{end}}{{if .Options}}{{$help = printf "%s [%s]" $help (join .Options "|")}}{{end}}{{if eq .Type "string"}}pflag.StringVarP(&cmd.{{.Name}}, "{{.CLIName}}", "{{.ShortFlag}}", "{{.DefaultValue}}", "{{$help}}")
 	{{else if eq .Type "int"}}pflag.IntVarP(&cmd.{{.Name}}, "{{.CLIName}}", "{{.ShortFlag}}", {{if .DefaultValue}}{{.DefaultValue}}{{else}}0{{end}}, "{{$help}}")
 	{{else if eq .Type "bool"}}pflag.BoolVarP(&cmd.{{.Name}}, "{{.CLIName}}", "{{.ShortFlag}}", {{if .DefaultValue}}{{.DefaultValue}}{{else}}false{{end}}, "{{$help}}")
 	{{else if eq .Type "[]string"}}pflag.StringSliceVarP(&cmd.{{.Name}}, "{{.CLIName}}", "{{.ShortFlag}}", {{if .DefaultValue}}[]string{{"{{.DefaultValue}}"}}{{else}}nil{{end}}, "{{$help}}")
