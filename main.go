@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -21,10 +20,31 @@ func main() {
 	// Handle both long and short forms
 	if strings.HasPrefix(os.Args[1], "--command=") {
 		// Long form: --command=serve --help="description"
-		flag.StringVar(&command, "command", "", "Command name")
-		flag.StringVar(&help, "help", "", "Help description")
-		flag.StringVar(&outputFile, "output", "", "Output file (default: cmd_<command>.go)")
-		flag.Parse()
+		for i := 1; i < len(os.Args); i++ {
+			arg := os.Args[i]
+			if strings.HasPrefix(arg, "--command=") {
+				command = strings.TrimPrefix(arg, "--command=")
+			} else if strings.HasPrefix(arg, "--help=") {
+				help = strings.TrimPrefix(arg, "--help=")
+				// Handle case where quoted argument is split across multiple args
+				if strings.HasPrefix(help, `"`) && !strings.HasSuffix(help, `"`) {
+					// Collect remaining parts until we find the closing quote
+					for j := i + 1; j < len(os.Args); j++ {
+						help += " " + os.Args[j]
+						if strings.HasSuffix(os.Args[j], `"`) {
+							i = j // Skip the args we've consumed
+							break
+						}
+					}
+				}
+				// Remove surrounding quotes if present
+				if strings.HasPrefix(help, `"`) && strings.HasSuffix(help, `"`) {
+					help = strings.Trim(help, `"`)
+				}
+			} else if strings.HasPrefix(arg, "--output=") {
+				outputFile = strings.TrimPrefix(arg, "--output=")
+			}
+		}
 	} else {
 		// Short form: serve "description"
 		if len(os.Args) < 3 {
@@ -43,7 +63,7 @@ func main() {
 	}
 
 	if outputFile == "" {
-		outputFile = fmt.Sprintf("cmd_%s.go", command)
+		outputFile = fmt.Sprintf("cmd/%s/main.go", command)
 	}
 
 	// Get the source file from GOFILE environment variable (set by go generate)

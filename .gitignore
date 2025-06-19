@@ -16,6 +16,7 @@ go.work
 
 # Generated CLI files (these are examples and should be regenerated)
 cmd_*.go
+cmd/*/
 
 # Build artifacts
 cligen
