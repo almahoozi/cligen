@@ -9,6 +9,9 @@ import (
 	"reflect"
 	"strings"
 	"text/template"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // Generator handles the parsing and code generation
@@ -177,8 +180,9 @@ func (g *Generator) generateCLICode(structName string, fields []FieldInfo) error
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
+	caser := cases.Title(language.English)
 	tmpl := template.Must(template.New("cli").Funcs(template.FuncMap{
-		"title": strings.Title,
+		"title": caser.String,
 		"join":  strings.Join,
 	}).Parse(cliTemplate))
 
@@ -198,7 +202,11 @@ func (g *Generator) generateCLICode(structName string, fields []FieldInfo) error
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to close file %s: %v\n", g.OutputFile, closeErr)
+		}
+	}()
 
 	if err := tmpl.Execute(file, data); err != nil {
 		return err
@@ -220,9 +228,9 @@ func (g *Generator) generateGoMod() error {
 
 	goModContent := fmt.Sprintf(`module %s
 
-go 1.21
+go 1.24
 
-require github.com/spf13/pflag v1.0.5
+require github.com/spf13/pflag v1.0.6
 `, g.Command)
 
 	return os.WriteFile(goModPath, []byte(goModContent), 0644)
@@ -238,8 +246,9 @@ func (g *Generator) generateImplementationStub(structName string, fields []Field
 		return nil // File already exists, don't overwrite
 	}
 
+	caser := cases.Title(language.English)
 	tmpl := template.Must(template.New("impl").Funcs(template.FuncMap{
-		"title": strings.Title,
+		"title": caser.String,
 	}).Parse(implTemplate))
 
 	data := struct {
@@ -256,7 +265,11 @@ func (g *Generator) generateImplementationStub(structName string, fields []Field
 	if err != nil {
 		return fmt.Errorf("failed to create implementation file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to close file %s: %v\n", implPath, closeErr)
+		}
+	}()
 
 	return tmpl.Execute(file, data)
 }
@@ -271,6 +284,8 @@ import (
 
 	"github.com/spf13/pflag"
 )
+
+var _ = strings.TrimSpace // Avoid unused import error
 
 // {{title .Command}}Command represents the {{.Command}} command
 type {{title .Command}}Command struct {
